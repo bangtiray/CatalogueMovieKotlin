@@ -1,0 +1,32 @@
+<tabs>
+    <tab
+            id="@+id/home"
+            icon="@drawable/ic_playlist"
+            title="Home"
+            activeColor="@color/seleted_txt"
+            badgeHidesWhenActive="true"
+            inActiveColor="@color/unselected_txt"
+    />
+    <tab
+            id="@+id/playnow"
+            icon="@drawable/ic_camera"
+            title="Now Playing"
+            activeColor="@color/seleted_txt"
+            inActiveColor="@color/unselected_txt"
+    />
+    <tab
+            id="@+id/upcomming"
+            icon="@drawable/ic_roll"
+            title="UpComing"
+            activeColor="@color/seleted_txt"
+            inActiveColor="@color/unselected_txt"
+    />
+
+    <tab
+            id="@+id/search"
+            icon="@drawable/ic_search"
+            title="Search"
+            activeColor="@color/seleted_txt"
+            inActiveColor="@color/unselected_txt"
+    />
+</tabs>

@@ -1,0 +1,55 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowEnterTransition">@android:transition/slide_right</item>
+        <item name="android:windowExitTransition">@android:transition/slide_left</item>
+
+
+    </style>
+
+    <style name="ToolbarColoredBackArrow" parent="AppTheme">
+        <item name="android:textColorSecondary">@color/white</item>
+    </style>
+
+    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="Toolbar.SubtitleText" parent="TextAppearance.AppCompat.Widget.ActionMode.Subtitle">
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="botoombar_textchange">
+        <item name="android:textSize">13dp</item>
+    </style>
+
+
+    <style name="MyMenuTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">12dp</item>
+        <item name="android:letterSpacing">0.0225</item>
+
+    </style>
+
+
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/gray</item>
+        <item name="colorControlActivated">@color/yellow</item>
+    </style>
+
+
+    <declare-styleable name="RoundishImageView">
+        <attr name="cornerRadius" format="dimension"/>
+        <attr name="roundedCorners">
+            <flag name="topLeft" value="20"/>
+            <flag name="topRight" value="20"/>
+            <flag name="bottomRight" value="20"/>
+            <flag name="bottomLeft" value="20"/>
+            <flag name="all" value="15"/>
+        </attr>
+    </declare-styleable>
+</resources>

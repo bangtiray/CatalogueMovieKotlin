@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:background="@color/background"
+              android:padding="1dip">
+
+
+    <com.bangtiray.tmdb.util.customfonts.MyTextView_Roboto_Light
+            android:text="TextView"
+
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/movieTitle"
+            android:textSize="10dp"
+            android:padding="16dp"
+            android:textColor="@color/design_default_color_primary_dark"
+            android:textStyle="bold"/>
+    <ImageView
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center"
+            android:src="@drawable/tmdb"
+            android:scaleType="fitXY"/>
+</LinearLayout>
