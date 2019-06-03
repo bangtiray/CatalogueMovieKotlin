@@ -4,6 +4,7 @@ package com.bangtiray.tmdb.ui.fragment.upcoming
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -36,17 +37,24 @@ private const val ARG_PARAM2 = "param2"
  * A simple [Fragment] subclass.
  *
  */
-class UpcomingFragment : Fragment(), Contract.View {
+class UpcomingFragment : Fragment(), Contract.View, SwipeRefreshLayout.OnRefreshListener {
+
 
     @Inject
     lateinit var presenter: Contract.Presenter
-    @BindView(R.id.progressBar) lateinit var progressBar: ProgressBar
+    @BindView(R.id.progressBar)
+    lateinit var progressBar: ProgressBar
     @BindView(R.id.recyclerview)
     lateinit var recyclerview: RecyclerView
     private var lists: MutableList<ResultsItem> = mutableListOf()
-    @BindView(R.id.resultMovie) lateinit var status:TextView
+    @BindView(R.id.resultMovie)
+    lateinit var status: TextView
+    @BindView(R.id.swipe_refresh)
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var unbinder: Unbinder
 
+    private var currentPage = 1
+    private var totalPages = 1
     private lateinit var movieAdapter: MovieAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,16 +90,45 @@ class UpcomingFragment : Fragment(), Contract.View {
         val view = inflater.inflate(R.layout.recycler, container, false)
         unbinder = ButterKnife.bind(this, view)
         setList()
-
+        setupListScrollListener()
+        swipeRefreshLayout.setOnRefreshListener(this)
         return view
     }
+
+    private fun setupListScrollListener() {
+        recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+
+                val totalItems = layoutManager.itemCount
+                val visibleItems = layoutManager.childCount
+                val pastVisibleItems = layoutManager.findFirstCompletelyVisibleItemPosition()
+
+                if (pastVisibleItems + visibleItems >= totalItems) {
+                    if (currentPage < totalPages) currentPage++
+                    startRefreshing()
+                }
+            }
+
+
+        })
+    }
+
+    private fun startRefreshing() {
+        if (swipeRefreshLayout.isRefreshing) return
+        swipeRefreshLayout.isRefreshing = true
+        presenter.loadData("upcoming", currentPage)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        status.visibility=View.GONE
+        status.visibility = View.GONE
         activity!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         presenter.attach(this, activity!!)
         presenter.subscribe()
-        presenter.loadData("upcoming") //slider
+        startRefreshing()
 
     }
 
@@ -100,18 +137,27 @@ class UpcomingFragment : Fragment(), Contract.View {
         unbinder.unbind()
         presenter.unsubscribe()
     }
+
     override fun showProgress() {
-        progressBar.visibility=View.VISIBLE
+        progressBar.visibility = View.VISIBLE
     }
 
     override fun hideProgress() {
-        progressBar.visibility=View.INVISIBLE
+        progressBar.visibility = View.INVISIBLE
     }
 
-    override fun loadData(list: List<ResultsItem>?) {
-        lists.clear()
-        lists.addAll(list!!.toMutableList())
+    override fun loadData(totalPage: Int, list: List<ResultsItem>?) {
+
+        totalPages=totalPage
+        var items: MutableList<ResultsItem> = list!!.toMutableList()
+        if (currentPage > 1) {
+            lists.addAll(items)
+        }
+        else {
+            lists.addAll(items)
+        }
         movieAdapter.notifyDataSetChanged()
+        stopRefrehing()
     }
 
     override fun showError(localizedMessage: String) {
@@ -119,5 +165,14 @@ class UpcomingFragment : Fragment(), Contract.View {
 
     }
 
+    override fun onRefresh() {
+        currentPage = 1
+        totalPages = 1
+        stopRefrehing()
+        startRefreshing()
+    }
 
+    private fun stopRefrehing() {
+        if (swipeRefreshLayout.isRefreshing) swipeRefreshLayout.isRefreshing = false
+    }
 }

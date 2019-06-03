@@ -13,23 +13,23 @@ class Presenter : Contract.Presenter {
     private val subscriptions = CompositeDisposable()
     private lateinit var view: Contract.View
     private lateinit var context: Context
-    override fun loadData(cat: String) {
+    override fun loadData(cat: String, page :Int) {
         view.showProgress()
         api = ApiServiceInterface.create()
         when (cat) {
-            "now" -> nowPlaying()
-            "upcoming" -> upcoming()
+            "now" -> nowPlaying(page)
+            "upcoming" -> upcoming(page)
         }
 
 
     }
 
-    private fun upcoming() {
-        var subscribe = api.upcoming(Localization.country).subscribeOn(Schedulers.io())
+    private fun upcoming(page: Int) {
+        var subscribe = api.upcoming(page).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 view.hideProgress()
-                view.loadData(it.results)
+                view.loadData(it.totalPages, it.results)
             }, {
                 view.hideProgress()
                 view.showError(it.localizedMessage)
@@ -38,13 +38,13 @@ class Presenter : Contract.Presenter {
         subscriptions.add(subscribe)
     }
 
-    private fun nowPlaying() {
+    private fun nowPlaying(page: Int) {
 
-        var subscribe = api.nowPlaying(Localization.country).subscribeOn(Schedulers.io())
+        var subscribe = api.nowPlaying(page).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 view.hideProgress()
-                view.loadData(it.results)
+                view.loadData(it.totalPages, it.results)
             }, {
                 view.hideProgress()
                 view.showError(it.localizedMessage)
@@ -54,14 +54,14 @@ class Presenter : Contract.Presenter {
     }
 
 
-    override fun searchData(search: String) {
+    override fun searchData(search: String, page: Int) {
         view.showProgress()
         api = ApiServiceInterface.create()
-        var subscribe = api.searchMovie(search, Localization.country).subscribeOn(Schedulers.io())
+        var subscribe = api.searchMovie(search, page).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 view.hideProgress()
-                view.loadData(it.results)
+                view.loadData(it.totalPages, it.results)
             }, {
                 view.hideProgress()
                 view.showError(it.localizedMessage)

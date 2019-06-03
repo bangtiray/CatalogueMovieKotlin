@@ -14,16 +14,16 @@ import retrofit2.http.Query
 
 interface ApiServiceInterface {
     @GET("movie/now_playing")
-    fun nowPlaying(@Query("language") lang: String): Observable<NowPlayingModel>
+    fun nowPlaying(@Query("page") page:Int): Observable<NowPlayingModel>
 
     @GET("movie/upcoming")
-    fun upcoming(@Query("language") lang: String): Observable<NowPlayingModel>
+    fun upcoming(@Query("page") page:Int): Observable<NowPlayingModel>
 
     @GET("movie/{movie_id}")
     fun movieId(@Path("movie_id") movieId: String, @Query("language") lang: String): Observable<NowPlayingModel>
 
     @GET("search/movie")
-    fun searchMovie(@Query("query") keyMovie: String, @Query("language") lang: String): Observable<NowPlayingModel>
+    fun searchMovie(@Query("query") keyMovie: String, @Query("page") page:Int): Observable<NowPlayingModel>
 
     companion object Factory {
         fun create(): ApiServiceInterface {

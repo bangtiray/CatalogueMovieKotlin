@@ -18,7 +18,7 @@ class HomePresenter : HomeContract.Presenter {
     override fun loadSlider() {
         view.showProgress()
         api = ApiServiceInterface.create()
-        var subscribe=api.nowPlaying(Localization.country).subscribeOn(Schedulers.io())
+        var subscribe=api.nowPlaying(1).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 view.hideProgress()
@@ -33,7 +33,7 @@ class HomePresenter : HomeContract.Presenter {
 
     override fun loadUpcoming() {
         api = ApiServiceInterface.create()
-        var subscribe=api.upcoming(Localization.country).subscribeOn(Schedulers.io())
+        var subscribe=api.upcoming(1).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
 

@@ -4,6 +4,7 @@ package com.bangtiray.tmdb.ui.fragment.search
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -26,6 +27,10 @@ import com.bangtiray.tmdb.ui.detail.DetailMovieActivity
 import com.bangtiray.tmdb.ui.fragment.conpre.Contract
 import com.google.gson.Gson
 import javax.inject.Inject
+import retrofit2.adapter.rxjava2.Result.response
+
+
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,7 +41,7 @@ private const val ARG_PARAM2 = "param2"
  * A simple [Fragment] subclass.
  *
  */
-class SearchFragment : Fragment(), Contract.View {
+class SearchFragment : Fragment(), Contract.View , SwipeRefreshLayout.OnRefreshListener {
 
 
     @Inject
@@ -48,11 +53,19 @@ class SearchFragment : Fragment(), Contract.View {
     private var lists: MutableList<ResultsItem> = mutableListOf()
     @BindView(R.id.resultMovie)
     @JvmField var status: TextView? = null
+
+    @BindView(R.id.swipe_refresh)
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
     private lateinit var unbinder: Unbinder
 
     private lateinit var movieAdapter: MovieAdapter
 
     private var searchKey = ""
+
+    private var currentPage = 1
+    private var totalPages = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         status?.text = activity?.resources?.getString(R.string.please)
@@ -90,8 +103,34 @@ class SearchFragment : Fragment(), Contract.View {
         status?.text = activity?.resources?.getString(R.string.please)
         setList()
 
-
+        setupListScrollListener()
+        swipeRefreshLayout.setOnRefreshListener(this)
         return view
+    }
+
+    private fun setupListScrollListener() {
+        recyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+
+                val totalItems = layoutManager.itemCount
+                val visibleItems = layoutManager.childCount
+                val pastVisibleItems = layoutManager.findFirstCompletelyVisibleItemPosition()
+
+                if (pastVisibleItems + visibleItems >= totalItems) {
+                    if (currentPage < totalPages) currentPage++
+                    startRefreshing()
+                }
+            }
+
+        })
+    }
+    private fun startRefreshing() {
+        if (swipeRefreshLayout.isRefreshing) return
+        swipeRefreshLayout.isRefreshing = true
+        presenter.searchData(searchKey, currentPage)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -104,7 +143,7 @@ class SearchFragment : Fragment(), Contract.View {
         try {
             searchKey = arguments!!.getString(SEARCHKEY)
             if (searchKey != "") {
-                presenter.searchData(searchKey)
+                startRefreshing()
             } else {
                 status?.text = activity?.resources?.getString(R.string.please)
             }
@@ -135,16 +174,35 @@ class SearchFragment : Fragment(), Contract.View {
         progressBar.visibility = View.INVISIBLE
     }
 
-    override fun loadData(list: List<ResultsItem>?) {
+    override fun loadData(totalPage: Int, list: List<ResultsItem>?) {
+
+
+        totalPages=totalPage
+
+
+
+        var items: MutableList<ResultsItem> = list!!.toMutableList()
         if (list?.size == 0) {
             lists.clear()
             status?.text = "keyword " + searchKey + " " + activity?.resources?.getString(R.string.notfound)
         } else {
-            status?.text = list?.size.toString() + " Results from Keyword"
-            lists.clear()
-            lists.addAll(list!!.toMutableList())
-            movieAdapter.notifyDataSetChanged()
+            status?.text = "Results from Keyword"
+//            lists.clear()
+//            lists.addAll(list!!.toMutableList())
+//            movieAdapter.notifyDataSetChanged()
+
+            if (currentPage > 1) {
+                lists.addAll(items)
+                movieAdapter.notifyDataSetChanged()
+            }
+            else {
+                //lists.clear()
+                lists.addAll(items)
+                movieAdapter.notifyDataSetChanged()
+            }
         }
+
+        stopRefrehing()
     }
 
     override fun showError(localizedMessage: String) {
@@ -152,4 +210,13 @@ class SearchFragment : Fragment(), Contract.View {
 
     }
 
+    override fun onRefresh() {
+        currentPage = 1
+        totalPages = 1
+        stopRefrehing()
+        startRefreshing()
+    }
+    private fun stopRefrehing() {
+        if (swipeRefreshLayout.isRefreshing) swipeRefreshLayout.isRefreshing = false
+    }
 }
